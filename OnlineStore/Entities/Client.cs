@@ -1,4 +1,4 @@
-﻿namespace OnlineStore
+﻿namespace OnlineStore.Entities
 {
   public class Client
   {
