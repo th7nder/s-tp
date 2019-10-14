@@ -10,21 +10,21 @@ namespace OnlineStore.UnitTest
   public class DataRepositoryTest
   {
     [TestMethod]
-    public void GetAllClientsTest()
+    public void GetAllClients_ReturnsAllClients()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
       Assert.AreEqual(1, dataRepository.GetAllClients().Count());
     }
 
     [TestMethod]
-    public void GetClientTest()
+    public void GetClient_ReturnsClient()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
       Assert.AreEqual("jkowalski@ff.pl", dataRepository.GetClient(0).Email);
     }
 
     [TestMethod]
-    public void GetClientByEmail()
+    public void GetClientByEmail_ExistingMail_ReturnsClient()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
       Assert.IsNull(dataRepository.GetClient("test@xd.com"));
@@ -32,7 +32,14 @@ namespace OnlineStore.UnitTest
     }
 
     [TestMethod]
-    public void AddClientTest()
+    public void GetClientByEmail_NonExistingMail_ReturnsNull()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Assert.IsNull(dataRepository.GetClient("test@xd.com"));
+    }
+
+    [TestMethod]
+    public void AddClient_ValidClient_AddsClient()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
       Client newClient = new Client
@@ -54,7 +61,28 @@ namespace OnlineStore.UnitTest
     }
 
     [TestMethod]
-    public void UpdateClientTest()
+    public void AddClient_InvalidClient_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client newClient = new Client
+      {
+        Name = "Konrad",
+        Surname = "Stepniak",
+        Email = "vsph@mail.com",
+        Address = new Address
+        {
+          City = "Kalisz",
+          PostalCode = "62-800",
+          Street = "Kaliska 1"
+        }
+      };
+      dataRepository.AddClient(newClient);
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddClient(newClient));
+    }
+
+    [TestMethod]
+    public void UpdateClient_ExistingClient_Updates()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
       Client newClient = new Client
@@ -78,18 +106,31 @@ namespace OnlineStore.UnitTest
     public void DeleteClient_ExistingClient_SetsDeleted()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
-      Client client = dataRepository.GetClient(0);
-      dataRepository.DeleteClient(client);
+      Client newClient = new Client
+      {
+        Name = "Konrad",
+        Surname = "Stepniak",
+        Email = "vsph@mail.com",
+        Address = new Address
+        {
+          City = "Kalisz",
+          PostalCode = "62-800",
+          Street = "Kaliska 1"
+        }
+      };
+      dataRepository.AddClient(newClient);
+      dataRepository.DeleteClient(newClient);
 
-      Assert.AreEqual(true, client.Deleted);
-      Assert.AreEqual(0, dataRepository.GetAllClients().Count());
+      Assert.AreEqual(1, dataRepository.GetAllClients().Count());
     }
 
     [TestMethod]
-    public void DeleteClient_NonExistingClient_ThrowsException()
+    public void DeleteClient_ExistingClientAssignedToInvoice_Throws()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
-      Assert.ThrowsException<ArgumentException>(() => dataRepository.DeleteClient(new Client()));
+      Client client = dataRepository.GetClient(0);
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.DeleteClient(client));
     }
 
     [TestMethod]
@@ -189,6 +230,74 @@ namespace OnlineStore.UnitTest
       Assert.AreEqual(1, dataRepository.GetAllProducts().Count());
     }
 
+    [TestMethod]
+    public void GetAllOffers_ReturnsAllOffers()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.AreEqual(1, dataRepository.GetAllOffers().Count());
+    }
+
+    [TestMethod]
+    public void GetOffer_ExistingOffer_ReturnsOffer()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Offer offer = dataRepository.GetOffer(0);
+      Assert.IsNotNull(offer);
+    }
+
+    [TestMethod]
+    public void AddOffer_ValidData_CreatesOffer()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      dataRepository.AddOffer(new Offer
+      {
+        Product = dataRepository.GetProduct("btc"),
+        Count = 10,
+        Price = 3000.0M,
+        Tax = 0.23M
+      });
+
+      Assert.AreEqual(2, dataRepository.GetAllOffers().Count());
+    }
+
+    [TestMethod]
+    public void AddOffer_InvalidData_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddOffer(new Offer()));
+    }
+
+    [TestMethod]
+    public void UpdateOffer_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Offer offer = dataRepository.GetOffer(0);
+      offer.Count = 66;
+
+      dataRepository.UpdateOffer(0, offer);
+
+      Assert.AreEqual(66, dataRepository.GetOffer(0).Count);
+    }
+
+    [TestMethod]
+    public void DeleteOffer_ValidData_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Offer offer = new Offer
+      {
+        Product = dataRepository.GetProduct("btc"),
+        Count = 10,
+        Price = 3000.0M,
+        Tax = 0.23M
+      };
+      dataRepository.AddOffer(offer);
+      dataRepository.DeleteOffer(offer);
+
+      Assert.AreEqual(1, dataRepository.GetAllOffers().Count());
+    }
   }
 
   public class TestDataFiller : IDataFiller

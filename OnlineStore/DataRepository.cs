@@ -37,7 +37,7 @@ namespace OnlineStore
 
     public IEnumerable<Client> GetAllClients()
     {
-      return _dataContext.Clients.Where(client => !client.Deleted);
+      return _dataContext.Clients;
     }
 
     public void UpdateClient(int id, Client client)
@@ -47,13 +47,13 @@ namespace OnlineStore
 
     public void DeleteClient(Client client)
     {
-      Client c = GetClient(client.Email);
-      if (c == null)
+      IEnumerable<Invoice> invoices = GetAllInvoices();
+      if (invoices.Any(invoice => invoice.Client.Email == client.Email))
       {
-        throw new ArgumentException($"Client '${client.Email}'does not exist in the repository");
+        throw new ArgumentException($"Client is used in an invoice");
       }
 
-      c.Deleted = true;
+      _dataContext.Clients.Remove(client);
     }
 
     public IEnumerable<Product> GetAllProducts()
@@ -66,7 +66,8 @@ namespace OnlineStore
       try
       {
         return _dataContext.Products[key];
-      } catch
+      }
+      catch
       {
         return null;
       }
@@ -101,7 +102,8 @@ namespace OnlineStore
 
       Product product = GetProduct(key);
       IEnumerable<Offer> offers = GetAllOffers();
-      if (offers.Any(offer => offer.Product.Id == product.Id)) {
+      if (offers.Any(offer => offer.Product.Id == product.Id))
+      {
         throw new ArgumentException($"A offer uses this product");
       }
 
@@ -112,5 +114,42 @@ namespace OnlineStore
     {
       return _dataContext.Offers;
     }
-  } 
+
+    public Offer GetOffer(int id)
+    {
+      return _dataContext.Offers[id];
+    }
+
+    public void AddOffer(Offer offer)
+    {
+      if (offer.Product == null)
+      {
+        throw new ArgumentException("Offer must reference a product");
+      }
+
+      _dataContext.Offers.Add(offer);
+    }
+
+    public void UpdateOffer(int id, Offer offer)
+    {
+      _dataContext.Offers[id] = offer;
+    }
+
+    public void DeleteOffer(Offer offer)
+    {
+      IEnumerable<Invoice> invoices = GetAllInvoices();
+
+      if (invoices.Any(invoice => invoice.Items.Any(item => item.Offer.Id == offer.Id)))
+      {
+        throw new ArgumentException("Offer is used in an invoice");
+      }
+
+      _dataContext.Offers.Remove(offer);
+    }
+
+    private IEnumerable<Invoice> GetAllInvoices()
+    {
+      return _dataContext.Invoices;
+    }
+  }
 }
