@@ -81,5 +81,36 @@ namespace OnlineStore
 
       _dataContext.Products.Add(key, product);
     }
+
+    public void UpdateProduct(string key, Product product)
+    {
+      if (!_dataContext.Products.ContainsKey(key))
+      {
+        throw new ArgumentException($"Product with key '${key}' does not exist");
+      }
+
+      _dataContext.Products[key] = product;
+    }
+
+    public void DeleteProduct(string key)
+    {
+      if (!_dataContext.Products.ContainsKey(key))
+      {
+        throw new ArgumentException($"Product does not exist");
+      }
+
+      Product product = GetProduct(key);
+      IEnumerable<Offer> offers = GetAllOffers();
+      if (offers.Any(offer => offer.Product.Id == product.Id)) {
+        throw new ArgumentException($"A offer uses this product");
+      }
+
+      _dataContext.Products.Remove(key);
+    }
+
+    public IEnumerable<Offer> GetAllOffers()
+    {
+      return _dataContext.Offers;
+    }
   } 
 }

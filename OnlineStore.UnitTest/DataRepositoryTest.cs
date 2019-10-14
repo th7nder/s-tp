@@ -140,6 +140,55 @@ namespace OnlineStore.UnitTest
     }
 
 
+    [TestMethod]
+    public void UpdateProduct_NonExistingKey_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.UpdateProduct("invalid-key", new Product { }));
+    }
+
+    [TestMethod]
+    public void UpdateProduct_ExistingKey_Updates()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Product product = dataRepository.GetProduct("btc");
+      product.Description = "Changed Description";
+
+      dataRepository.UpdateProduct("btc", product);
+
+      Assert.AreEqual("Changed Description", dataRepository.GetProduct("btc").Description);
+    }
+
+    [TestMethod]
+    public void DeleteProduct_UsedByOffers_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.DeleteProduct("btc"));
+    }
+
+    [TestMethod]
+    public void DeleteProduct_NonExistent_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.DeleteProduct("non-existent-key"));
+    }
+
+    [TestMethod]
+    public void DeleteProduct_NotUsed_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      dataRepository.AddProduct("test", new Product
+      {
+      });
+
+      dataRepository.DeleteProduct("test");
+
+      Assert.AreEqual(1, dataRepository.GetAllProducts().Count());
+    }
+
   }
 
   public class TestDataFiller : IDataFiller
