@@ -12,7 +12,7 @@ namespace OnlineStore.Entities
     public class Item
     {
       public Offer Offer { get; set; }
-      public uint Count { get; set; }
+      public int Count { get; set; }
     }
   }
 }

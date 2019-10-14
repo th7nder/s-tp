@@ -5,6 +5,6 @@
     public Product Product { get; set; }
     public decimal Price { get; set; }
     public decimal Tax { get; set; }
-    public uint Count { get; set; }
+    public int Count { get; set; }
   }
 }

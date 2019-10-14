@@ -6,6 +6,7 @@
     public string Surname { get; set; }
     public string Email { get; set; }
     public Address Address { get; set; }
+    public bool Deleted { get; set; }
   }
 
   public class Address
