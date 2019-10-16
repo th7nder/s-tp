@@ -106,5 +106,78 @@ namespace OnlineStore.ConsoleInterface
         Console.WriteLine($"\t{product}");
       }
     }
+
+    public Invoice CreateInvoice(Client client, Offer offer)
+    {
+      Invoice invoice = new Invoice
+      {
+        Client = client,
+        PurchaseTime = DateTime.Now,
+        Items =
+        {
+          new Invoice.Item
+          {
+            Count = 1, 
+            Offer = offer
+          }
+        }
+      };
+
+      _dataRepository.AddInvoice(invoice);
+
+      return invoice;
+    }
+
+    public Offer CreateOffer(Product product, decimal price, int count, decimal tax = 0.23M)
+    {
+      Offer offer = new Offer
+      {
+        Product = product,
+        Count = count,
+        Price = price,
+        Tax = tax
+      };
+
+      _dataRepository.AddOffer(offer);
+      return offer;
+    }
+
+    public Product CreateProduct(string name, string description, string category)
+    {
+      Product product = new Product
+      {
+        Category = category,
+        Description = description,
+        Name = name
+      };
+
+      _dataRepository.AddProduct(product.Id.ToString(), product);
+      return product;
+    }
+
+    public Client CreateClient(string email, string name, string surname, Address address)
+    {
+      Client client = new Client
+      {
+        Email = email,
+        Name = name,
+        Surname = surname,
+        Address = address
+      };
+
+      _dataRepository.AddClient(client);
+
+      return client;
+    }
+
+    public Client GetClientByEmail(string email)
+    {
+      return _dataRepository.GetClient(email);
+    }
+
+    public void DeleteClient(Client client)
+    {
+      _dataRepository.DeleteClient(client);
+    }
   }
 }
