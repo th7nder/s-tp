@@ -1,6 +1,7 @@
 ﻿using OnlineStore.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace OnlineStore
@@ -120,6 +121,11 @@ namespace OnlineStore
       return _dataContext.Offers[id];
     }
 
+    public Offer GetOffer(Guid id)
+    {
+      return _dataContext.Offers.FirstOrDefault(offer => offer.Id == id);
+    }
+
     public void AddOffer(Offer offer)
     {
       if (offer.Product == null)
@@ -147,9 +153,76 @@ namespace OnlineStore
       _dataContext.Offers.Remove(offer);
     }
 
-    private IEnumerable<Invoice> GetAllInvoices()
+    public IEnumerable<Invoice> GetAllInvoices()
     {
       return _dataContext.Invoices;
+    }
+
+    public Invoice GetInvoice(int id)
+    {
+      try
+      {
+        return _dataContext.Invoices[id];
+      } catch
+      {
+        return null;
+      }
+    }
+
+    public void AddInvoice(Invoice invoice)
+    {
+      if (invoice.Client == null)
+      {
+        throw new ArgumentException("Client cannot be null");
+      }
+
+      if (invoice.Items == null || invoice.Items.Count == 0)
+      {
+        throw new ArgumentException("Invoice needs items");
+      }
+
+      if (GetInvoice(invoice.Id) != null)
+      {
+        throw new ArgumentException($"Invoice with Id '${invoice.Id}' already exists");
+      }
+
+      foreach (Invoice.Item item in invoice.Items)
+      {
+        Offer offer = GetOffer(item.Offer.Id);
+        if (offer.Count < item.Count)
+        {
+          throw new ArgumentException("Cannot create an invoice, there is not enough items in Offer");
+        }
+        offer.Count -= item.Count;
+      }
+
+      _dataContext.Invoices.Add(invoice);
+    }
+
+    public void RemoveInvoice(Invoice invoice)
+    {
+      if (invoice == null)
+      {
+        throw new ArgumentException("Cannot remove null invoice");
+      }
+
+      if (GetInvoice(invoice.Id) == null)
+      {
+        throw new ArgumentException("Invoice does not exist");
+      }
+
+      foreach (Invoice.Item item in invoice.Items)
+      {
+        Offer offer = GetOffer(item.Offer.Id);
+        offer.Count += item.Count;
+      }
+
+      _dataContext.Invoices.Remove(invoice);
+    }
+
+    public void UpdateInvoice(int id, Invoice invoice)
+    {
+      _dataContext.Invoices[id] = invoice;
     }
   }
 }

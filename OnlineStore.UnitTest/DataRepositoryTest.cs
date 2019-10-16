@@ -247,6 +247,14 @@ namespace OnlineStore.UnitTest
     }
 
     [TestMethod]
+    public void GetOffer_ByGuid_ReturnsOffer()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Offer offer = dataRepository.GetOffer(dataRepository.GetOffer(0).Id);
+      Assert.IsNotNull(offer);
+    }
+
+    [TestMethod]
     public void AddOffer_ValidData_CreatesOffer()
     {
       DataRepository dataRepository = new DataRepository(new TestDataFiller());
@@ -298,6 +306,197 @@ namespace OnlineStore.UnitTest
 
       Assert.AreEqual(1, dataRepository.GetAllOffers().Count());
     }
+
+    [TestMethod]
+    public void GetAllInvoices_ReturnsAllInvoices()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      IEnumerable<Invoice> invoices = dataRepository.GetAllInvoices();
+
+      Assert.AreEqual(1, invoices.Count());
+    }
+
+    [TestMethod]
+    public void GetInvoice_ExistingInvoice_ReturnsInvoice()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Invoice invoice = dataRepository.GetInvoice(0);
+
+      Assert.IsNotNull(invoice);
+    }
+
+    [TestMethod]
+    public void GetInvoice_NotExistingInvoice_ReturnsNull()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Invoice invoice = dataRepository.GetInvoice(100);
+
+      Assert.IsNull(invoice);
+    }
+
+    [TestMethod]
+    public void AddInvoice_ValidData_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetClient(0);
+      Offer offer = dataRepository.GetOffer(0);
+
+      dataRepository.AddInvoice(new Invoice
+      {
+        Id = 1,
+        Client = client,
+        PurchaseTime = DateTime.Now,
+        Items = new List<Invoice.Item>
+        {
+          new Invoice.Item
+          {
+            Count = 1,
+            Offer = offer
+          }
+        }
+      });
+
+
+      Assert.AreEqual(2, dataRepository.GetAllInvoices().Count());
+      Assert.AreEqual(9, offer.Count);
+    }
+
+
+    [TestMethod]
+    public void AddInvoice_InvalidClient_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetClient(0);
+      Offer offer = dataRepository.GetOffer(0);
+
+      Invoice invoice = new Invoice
+      {
+        Id = 2,
+        Client = null,
+        PurchaseTime = DateTime.Now,
+        Items = new List<Invoice.Item>
+        {
+          new Invoice.Item
+          {
+            Count = 1,
+            Offer = offer
+          }
+        }
+      };
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddInvoice(invoice));
+      Assert.AreEqual(1, dataRepository.GetAllInvoices().Count());
+    }
+
+    [TestMethod]
+    public void AddInvoice_InvalidId_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetClient(0);
+      Offer offer = dataRepository.GetOffer(0);
+
+      Invoice invoice = new Invoice
+      {
+        Id = 1,
+        Client = null,
+        PurchaseTime = DateTime.Now,
+        Items = new List<Invoice.Item>
+        {
+          new Invoice.Item
+          {
+            Count = 1,
+            Offer = offer
+          }
+        }
+      };
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddInvoice(invoice));
+      Assert.AreEqual(1, dataRepository.GetAllInvoices().Count());
+    }
+
+    [TestMethod]
+    public void AddInvoice_EmptyItems_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetClient(0);
+      Offer offer = dataRepository.GetOffer(0);
+
+      Invoice invoice = new Invoice
+      {
+        Id = 2,
+        Client = null,
+        PurchaseTime = DateTime.Now,
+        Items = new List<Invoice.Item>
+        {
+        }
+      };
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddInvoice(invoice));
+      Assert.AreEqual(1, dataRepository.GetAllInvoices().Count());
+    }
+
+    [TestMethod]
+    public void AddInvoice_NotEnoughItems_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetClient(0);
+      Offer offer = dataRepository.GetOffer(0);
+
+      Invoice invoice = new Invoice
+      {
+        Id = 2,
+        Client = null,
+        PurchaseTime = DateTime.Now,
+        Items = new List<Invoice.Item>
+        {
+          new Invoice.Item
+          {
+            Count = 30,
+            Offer = offer
+          }
+        }
+      };
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.AddInvoice(invoice));
+      Assert.AreEqual(1, dataRepository.GetAllInvoices().Count());
+    }
+
+    [TestMethod]
+    public void RemoveInvoice_InvalidData_Throws()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      Assert.ThrowsException<ArgumentException>(() => dataRepository.RemoveInvoice(new Invoice { Id = -3 }));
+    }
+
+    [TestMethod]
+    public void RemoveInvoice_ValidData_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+
+      dataRepository.RemoveInvoice(dataRepository.GetInvoice(0));
+      Assert.AreEqual(0, dataRepository.GetAllInvoices().Count());
+      Assert.AreEqual(11, dataRepository.GetOffer(0).Count);
+    }
+
+    [TestMethod]
+    public void UpdateInvoice_ValidData_Succeeds()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Invoice invoice = dataRepository.GetInvoice(0);
+      invoice.Items.Add(new Invoice.Item
+      {
+        Count = 2,
+        Offer = dataRepository.GetOffer(0)
+      });
+
+      dataRepository.UpdateInvoice(0, invoice);
+      Assert.AreEqual(2, dataRepository.GetInvoice(0).Items.Count);
+    }
+
   }
 
   public class TestDataFiller : IDataFiller
@@ -330,6 +529,7 @@ namespace OnlineStore.UnitTest
 
       context.Invoices.Add(new Invoice
       {
+        Id = 0,
         Client = context.Clients[0],
         Items = new List<Invoice.Item>
         {
