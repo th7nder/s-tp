@@ -1,6 +1,7 @@
 ﻿using OnlineStore.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OnlineStore.ConsoleInterface
 {
@@ -9,10 +10,13 @@ namespace OnlineStore.ConsoleInterface
     static void Main(string[] args)
     {
       DataService dataService = new DataService(new DataRepository(new EmptyDataFiller()));
-      dataService.DisplayAllClients();
-      dataService.DisplayAllInvoices();
-      dataService.DisplayAllOffers();
-      dataService.DisplayAllProducts();
+      dataService.DisplayClients(dataService.GetAllClients());
+      dataService.DisplayInvoices(dataService.GetAllInvoices());
+      dataService.DisplayOffers(dataService.GetAllOffers());
+      dataService.DisplayProducts(dataService.GetAllProducts());
+
+      Client client = dataService.GetAllClients().First();
+      dataService.DisplayBoughtProductsForClient(client);
 
       Console.ReadLine();
     }
