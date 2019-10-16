@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace OnlineStore.Entities
 {
@@ -14,6 +15,21 @@ namespace OnlineStore.Entities
     {
       public Offer Offer { get; set; }
       public int Count { get; set; }
+      public override string ToString()
+      {
+        return $"Offer: {Offer.Id} | Count: {Count}";
+      }
+    }
+
+    public override string ToString()
+    {
+      StringBuilder stringBuilder = new StringBuilder($"Id: {Id} | Client: {Client.Email} | PurchaseTime: {PurchaseTime}");
+      foreach (Item item in Items)
+      {
+        stringBuilder.Append($"\n\t{item}");
+      }
+
+      return stringBuilder.ToString();
     }
   }
 }

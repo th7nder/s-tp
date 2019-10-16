@@ -13,5 +13,9 @@ namespace OnlineStore.Entities
     public decimal Price { get; set; }
     public decimal Tax { get; set; }
     public int Count { get; set; }
+    public override string ToString()
+    {
+      return $"Id: {Id} | Product: {Product.Id} | Price: {Price} | Tax: {Tax} | Count: {Count}";
+    }
   }
 }
