@@ -1,12 +1,11 @@
 ﻿using OnlineStore.Entities;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace OnlineStore
 {
-  public class DataRepository
+  public class DataRepository : IDataRepository
   {
     private readonly DataContext _dataContext = new DataContext();
     private readonly IDataFiller _dataFiller;
@@ -26,11 +25,6 @@ namespace OnlineStore
       _dataContext.Clients.Add(client);
     }
 
-    public Client GetClient(int id)
-    {
-      return _dataContext.Clients[id];
-    }
-
     public Client GetClient(string email)
     {
       return _dataContext.Clients.FirstOrDefault(client => client.Email == email);
@@ -41,19 +35,24 @@ namespace OnlineStore
       return _dataContext.Clients;
     }
 
-    public void UpdateClient(int id, Client client)
+    public void UpdateClient(string email, Client client)
     {
+      if (email != client.Email)
+      {
+        throw new ArgumentException("Can't change client's email.");
+      }
+
+      int id = _dataContext.Clients.FindIndex(c => c.Email == email);
+      if (id == -1)
+      {
+        throw new ArgumentException($"Client with email {email} does not exist");
+      }
+
       _dataContext.Clients[id] = client;
     }
 
     public void DeleteClient(Client client)
     {
-      IEnumerable<Invoice> invoices = GetAllInvoices();
-      if (invoices.Any(invoice => invoice.Client.Email == client.Email))
-      {
-        throw new ArgumentException($"Client is used in an invoice");
-      }
-
       _dataContext.Clients.Remove(client);
     }
 
@@ -62,11 +61,11 @@ namespace OnlineStore
       return _dataContext.Products.Values;
     }
 
-    public Product GetProduct(string key)
+    public Product GetProduct(Guid productId)
     {
       try
       {
-        return _dataContext.Products[key];
+        return _dataContext.Products[productId];
       }
       catch
       {
@@ -74,51 +73,44 @@ namespace OnlineStore
       }
     }
 
-    public void AddProduct(string key, Product product)
+    public void AddProduct(Product product)
     {
-      if (_dataContext.Products.ContainsKey(key))
+      if (_dataContext.Products.ContainsKey(product.Id))
       {
-        throw new ArgumentException($"Product with key '${key}' already exists");
+        throw new ArgumentException($"Product with key '${product.Id}' already exists");
       }
 
-      _dataContext.Products.Add(key, product);
+      _dataContext.Products.Add(product.Id, product);
     }
 
-    public void UpdateProduct(string key, Product product)
+    public void UpdateProduct(Guid productId, Product product)
     {
-      if (!_dataContext.Products.ContainsKey(key))
+      if (productId != product.Id)
       {
-        throw new ArgumentException($"Product with key '${key}' does not exist");
+        throw new ArgumentException($"Can't change products Guid");
       }
 
-      _dataContext.Products[key] = product;
+      if (!_dataContext.Products.ContainsKey(productId))
+      {
+        throw new ArgumentException($"Product with key '${productId}' does not exist");
+      }
+
+      _dataContext.Products[productId] = product;
     }
 
-    public void DeleteProduct(string key)
+    public void DeleteProduct(Product product)
     {
-      if (!_dataContext.Products.ContainsKey(key))
+      if (!_dataContext.Products.ContainsKey(product.Id))
       {
         throw new ArgumentException($"Product does not exist");
       }
 
-      Product product = GetProduct(key);
-      IEnumerable<Offer> offers = GetAllOffers();
-      if (offers.Any(offer => offer.Product.Id == product.Id))
-      {
-        throw new ArgumentException($"A offer uses this product");
-      }
-
-      _dataContext.Products.Remove(key);
+      _dataContext.Products.Remove(product.Id);
     }
 
     public IEnumerable<Offer> GetAllOffers()
     {
       return _dataContext.Offers;
-    }
-
-    public Offer GetOffer(int id)
-    {
-      return _dataContext.Offers[id];
     }
 
     public Offer GetOffer(Guid id)
@@ -128,26 +120,25 @@ namespace OnlineStore
 
     public void AddOffer(Offer offer)
     {
-      if (offer.Product == null)
-      {
-        throw new ArgumentException("Offer must reference a product");
-      }
-
       _dataContext.Offers.Add(offer);
     }
 
-    public void UpdateOffer(int id, Offer offer)
+    public void UpdateOffer(Guid offerId, Offer offer)
     {
+      int id = _dataContext.Offers.FindIndex(o => o.Id == offerId);
+      if (id == -1)
+      {
+        throw new ArgumentException($"Offer with id {offerId} does not exist");
+      }
+
       _dataContext.Offers[id] = offer;
     }
 
     public void DeleteOffer(Offer offer)
     {
-      IEnumerable<Invoice> invoices = GetAllInvoices();
-
-      if (invoices.Any(invoice => invoice.Items.Any(item => item.Offer.Id == offer.Id)))
+      if (GetOffer(offer.Id) == null)
       {
-        throw new ArgumentException("Offer is used in an invoice");
+        throw new ArgumentException("Offer does not exist");
       }
 
       _dataContext.Offers.Remove(offer);
@@ -158,70 +149,35 @@ namespace OnlineStore
       return _dataContext.Invoices;
     }
 
-    public Invoice GetInvoice(int id)
+    public Invoice GetInvoice(Guid id)
     {
-      try
-      {
-        return _dataContext.Invoices[id];
-      } catch
-      {
-        return null;
-      }
+      return _dataContext.Invoices.FirstOrDefault(invoice => invoice.Id == id);
     }
 
     public void AddInvoice(Invoice invoice)
     {
-      if (invoice.Client == null)
-      {
-        throw new ArgumentException("Client cannot be null");
-      }
-
-      if (invoice.Items == null || invoice.Items.Count == 0)
-      {
-        throw new ArgumentException("Invoice needs items");
-      }
-
-      if (GetInvoice(invoice.Id) != null)
-      {
-        throw new ArgumentException($"Invoice with Id '${invoice.Id}' already exists");
-      }
-
-      foreach (Invoice.Item item in invoice.Items)
-      {
-        Offer offer = GetOffer(item.Offer.Id);
-        if (offer.Count < item.Count)
-        {
-          throw new ArgumentException("Cannot create an invoice, there is not enough items in Offer");
-        }
-        offer.Count -= item.Count;
-      }
-
       _dataContext.Invoices.Add(invoice);
     }
 
-    public void RemoveInvoice(Invoice invoice)
+    public void DeleteInvoice(Invoice invoice)
     {
-      if (invoice == null)
-      {
-        throw new ArgumentException("Cannot remove null invoice");
-      }
-
       if (GetInvoice(invoice.Id) == null)
       {
         throw new ArgumentException("Invoice does not exist");
       }
 
-      foreach (Invoice.Item item in invoice.Items)
-      {
-        Offer offer = GetOffer(item.Offer.Id);
-        offer.Count += item.Count;
-      }
-
       _dataContext.Invoices.Remove(invoice);
     }
 
-    public void UpdateInvoice(int id, Invoice invoice)
+    public void UpdateInvoice(Guid invoiceId, Invoice invoice)
     {
+      Invoice invoiceInCollection = _dataContext.Invoices.FirstOrDefault(i => i.Id == invoiceId);
+      if (invoiceInCollection == null)
+      {
+        throw new ArgumentException("Invoice does not exist");
+      }
+
+      int id = _dataContext.Invoices.IndexOf(invoiceInCollection);
       _dataContext.Invoices[id] = invoice;
     }
   }
