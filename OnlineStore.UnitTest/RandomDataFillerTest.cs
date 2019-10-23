@@ -1,10 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OnlineStore.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static System.Linq.Enumerable;
 
 
@@ -78,7 +75,7 @@ namespace OnlineStore.UnitTest
           Price = new decimal(random.NextDouble()) * 100.0M,
           Product = product,
           Tax = new decimal(random.NextDouble())
-        }); 
+        });
       }
 
       foreach (int index in Range(1, _numInvoices))

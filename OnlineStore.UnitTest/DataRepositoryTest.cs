@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OnlineStore.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OnlineStore.UnitTest
 {

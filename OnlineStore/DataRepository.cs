@@ -27,7 +27,8 @@ namespace OnlineStore
       if (e.Action == NotifyCollectionChangedAction.Add)
       {
         InvoiceAdded?.Invoke(this, new EventArgs());
-      } else if (e.Action == NotifyCollectionChangedAction.Remove)
+      }
+      else if (e.Action == NotifyCollectionChangedAction.Remove)
       {
         InvoiceDeleted?.Invoke(this, new EventArgs());
       }

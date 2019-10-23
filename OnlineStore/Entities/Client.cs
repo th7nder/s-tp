@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnlineStore.Entities
+﻿namespace OnlineStore.Entities
 {
   public class Client
   {

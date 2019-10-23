@@ -1,6 +1,6 @@
-﻿using System;
+﻿using OnlineStore.Entities;
+using System;
 using System.Collections.Generic;
-using OnlineStore.Entities;
 
 namespace OnlineStore
 {

@@ -48,7 +48,7 @@ namespace OnlineStore
     public IEnumerable<Invoice> GetInvoicesForProduct(Product product)
     {
       return GetInvoices().Where(invoice => invoice.Offer.Product.Id.Equals(product.Id));
-    } 
+    }
 
     public IEnumerable<Client> GetClientsForProduct(Product product)
     {
