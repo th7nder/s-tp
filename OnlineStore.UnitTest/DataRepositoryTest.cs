@@ -409,6 +409,39 @@ namespace OnlineStore.UnitTest
       Assert.ThrowsException<ArgumentException>(() => dataRepository.UpdateInvoice(Guid.NewGuid(), new Invoice { }));
     }
 
+    [TestMethod]
+    public void InvoiceAdded_Event()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Client client = dataRepository.GetAllClients().First();
+      Offer offer = dataRepository.GetAllOffers().First();
+
+      bool called = false;
+      dataRepository.InvoiceAdded += (object sender, EventArgs ags) => called = true;
+      dataRepository.AddInvoice(new Invoice
+      {
+        Id = Guid.NewGuid(),
+        Client = client,
+        PurchaseTime = DateTimeOffset.Now,
+        Offer = offer
+      });
+
+      Assert.AreEqual(true, called);
+    }
+
+    [TestMethod]
+    public void InvoiceDeleted_Event()
+    {
+      DataRepository dataRepository = new DataRepository(new TestDataFiller());
+      Invoice invoice = dataRepository.GetAllInvoices().First();
+      bool called = false;
+      dataRepository.InvoiceDeleted += (object sender, EventArgs ags) => called = true;
+
+      dataRepository.DeleteInvoice(invoice);
+
+      Assert.AreEqual(true, called);
+    }
+
   }
 
   public class TestDataFiller : IDataFiller

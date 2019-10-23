@@ -1,6 +1,7 @@
 ﻿using OnlineStore.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace OnlineStore
@@ -9,10 +10,27 @@ namespace OnlineStore
   {
     private readonly DataContext _dataContext = new DataContext();
     private readonly IDataFiller _dataFiller;
+
+    public event EventHandler InvoiceAdded;
+    public event EventHandler InvoiceDeleted;
+
     public DataRepository(IDataFiller dataFiller)
     {
       _dataFiller = dataFiller;
       _dataFiller.Fill(_dataContext);
+
+      _dataContext.Invoices.CollectionChanged += InvoicesCollectionChanged;
+    }
+
+    private void InvoicesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.Action == NotifyCollectionChangedAction.Add)
+      {
+        InvoiceAdded?.Invoke(this, new EventArgs());
+      } else if (e.Action == NotifyCollectionChangedAction.Remove)
+      {
+        InvoiceDeleted?.Invoke(this, new EventArgs());
+      }
     }
 
     public void AddClient(Client client)

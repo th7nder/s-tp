@@ -14,8 +14,16 @@ namespace OnlineStore
       _dataRepository = dataRepository;
     }
 
-    // TO DO:
-    // Add Event handler
+    public event EventHandler InvoiceAdded
+    {
+      add => _dataRepository.InvoiceAdded += value;
+      remove => _dataRepository.InvoiceAdded -= value;
+    }
+    public event EventHandler InvoiceRemoved
+    {
+      add => _dataRepository.InvoiceDeleted += value;
+      remove => _dataRepository.InvoiceDeleted -= value;
+    }
 
     public IEnumerable<Client> GetClients() => _dataRepository.GetAllClients();
     public IEnumerable<Invoice> GetInvoices() => _dataRepository.GetAllInvoices();

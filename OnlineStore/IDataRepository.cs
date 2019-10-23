@@ -6,6 +6,8 @@ namespace OnlineStore
 {
   public interface IDataRepository
   {
+    event EventHandler InvoiceAdded;
+    event EventHandler InvoiceDeleted;
     void AddClient(Client client);
     void AddInvoice(Invoice invoice);
     void AddOffer(Offer offer);
