@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OnlineStore.Entities
+namespace Store.Entities
 {
   public class Offer
   {

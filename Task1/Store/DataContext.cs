@@ -1,9 +1,9 @@
-﻿using OnlineStore.Entities;
+﻿using Store.Entities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace OnlineStore
+namespace Store
 {
   public class DataContext
   {

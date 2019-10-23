@@ -1,4 +1,4 @@
-﻿namespace OnlineStore
+﻿namespace Store
 {
   public interface IDataFiller
   {

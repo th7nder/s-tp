@@ -1,10 +1,10 @@
-﻿using OnlineStore.Entities;
+﻿using Store.Entities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace OnlineStore
+namespace Store
 {
   public class DataRepository : IDataRepository
   {

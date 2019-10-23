@@ -1,8 +1,8 @@
-﻿using OnlineStore.Entities;
+﻿using Store.Entities;
 using System;
 using System.Collections.Generic;
 
-namespace OnlineStore
+namespace Store
 {
   public interface IDataRepository
   {

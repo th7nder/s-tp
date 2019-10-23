@@ -1,9 +1,9 @@
-﻿using OnlineStore.Entities;
+﻿using Store.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlineStore
+namespace Store
 {
   class DataService
   {

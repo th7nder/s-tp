@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OnlineStore.Entities;
+using Store.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlineStore.UnitTest
+namespace Store.UnitTest
 {
   [TestClass]
   public class DataRepositoryTest

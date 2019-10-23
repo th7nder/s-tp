@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OnlineStore.Entities;
+using Store.Entities;
 using System;
 using System.Linq;
 using static System.Linq.Enumerable;
 
 
-namespace OnlineStore.UnitTest
+namespace Store.UnitTest
 {
   [TestClass]
   public class RandomDataFillerTest
