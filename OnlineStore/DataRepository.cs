@@ -53,7 +53,10 @@ namespace OnlineStore
 
     public void DeleteClient(Client client)
     {
-      _dataContext.Clients.Remove(client);
+      if (!_dataContext.Clients.Remove(client))
+      {
+        throw new ArgumentException("Client does not exist");
+      }
     }
 
     public IEnumerable<Product> GetAllProducts()
@@ -140,12 +143,10 @@ namespace OnlineStore
 
     public void DeleteOffer(Offer offer)
     {
-      if (GetOffer(offer.Id) == null)
+      if (!_dataContext.Offers.Remove(offer))
       {
         throw new ArgumentException("Offer does not exist");
       }
-
-      _dataContext.Offers.Remove(offer);
     }
 
     public IEnumerable<Invoice> GetAllInvoices()
@@ -170,12 +171,10 @@ namespace OnlineStore
 
     public void DeleteInvoice(Invoice invoice)
     {
-      if (GetInvoice(invoice.Id) == null)
+      if (!_dataContext.Invoices.Remove(invoice))
       {
         throw new ArgumentException("Invoice does not exist");
       }
-
-      _dataContext.Invoices.Remove(invoice);
     }
 
     public void UpdateInvoice(Guid invoiceId, Invoice invoice)
