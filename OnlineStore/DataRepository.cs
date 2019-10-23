@@ -120,6 +120,10 @@ namespace OnlineStore
 
     public void AddOffer(Offer offer)
     {
+      if (GetOffer(offer.Id) != null)
+      {
+        throw new ArgumentException("Offer with this guid already exists");
+      }
       _dataContext.Offers.Add(offer);
     }
 
@@ -156,6 +160,11 @@ namespace OnlineStore
 
     public void AddInvoice(Invoice invoice)
     {
+      if (GetInvoice(invoice.Id) != null)
+      {
+        throw new ArgumentException("Invoice with this guid already exists");
+      }
+
       _dataContext.Invoices.Add(invoice);
     }
 

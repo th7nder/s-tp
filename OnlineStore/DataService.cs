@@ -14,6 +14,9 @@ namespace OnlineStore
       _dataRepository = dataRepository;
     }
 
+    // TO DO:
+    // Add Event handler
+
     public IEnumerable<Client> GetClients() => _dataRepository.GetAllClients();
     public IEnumerable<Invoice> GetInvoices() => _dataRepository.GetAllInvoices();
     public IEnumerable<Offer> GetOffers() => _dataRepository.GetAllOffers();
