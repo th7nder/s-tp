@@ -441,7 +441,6 @@ namespace OnlineStore.UnitTest
 
       Assert.AreEqual(true, called);
     }
-
   }
 
   public class TestDataFiller : IDataFiller

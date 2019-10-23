@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="DataRepositoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomDataFillerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
